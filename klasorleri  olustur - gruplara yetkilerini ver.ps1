@@ -33,12 +33,12 @@ if (-not (Test-Path $verwaltungPath)) {
 
 # Buchhaltung klasörü için yetkilendirme
 Write-Host "Buchhaltung klasörü için yetkiler ayarlanıyor..." -ForegroundColor Cyan
-icacls $buchhaltungPath /grant "$groupBuchhaltung:(OI)(CI)F"  # Buchhaltung grubu için tam erişim
-icacls $buchhaltungPath /grant "$groupVerwaltung:(OI)(CI)R"   # Verwaltung grubu için sadece okuma erişimi
+icacls $buchhaltungPath /grant "${groupBuchhaltung}:(OI)(CI)F"  # Buchhaltung grubu için tam erişim
+icacls $buchhaltungPath /grant "${groupVerwaltung}:(OI)(CI)R"   # Verwaltung grubu için sadece okuma erişimi
 
 # Verwaltung klasörü için yetkilendirme
 Write-Host "Verwaltung klasörü için yetkiler ayarlanıyor..." -ForegroundColor Cyan
-icacls $verwaltungPath /grant "$groupVerwaltung:(OI)(CI)F"    # Verwaltung grubu için tam erişim
-icacls $verwaltungPath /grant "$groupBuchhaltung:(OI)(CI)R"   # Buchhaltung grubu için sadece okuma izni
+icacls $verwaltungPath /grant "${groupVerwaltung}:(OI)(CI)F"    # Verwaltung grubu için tam erişim
+icacls $verwaltungPath /grant "${groupBuchhaltung}:(OI)(CI)R"   # Buchhaltung grubu için sadece okuma izni
 
 Write-Host "Klasör yetkilendirmeleri başarıyla tamamlandı!" -ForegroundColor Green
