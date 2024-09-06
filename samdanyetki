@@ -1,0 +1,38 @@
+# Kullanıcıdan SAM adını al
+$samAccountName = Read-Host "Kullanıcının SAM adını girin"
+
+# Kullanıcıyı getir
+$user = Get-LocalUser -Name $samAccountName -ErrorAction SilentlyContinue
+
+# Kullanıcı bulunamazsa hata ver
+if (-not $user) {
+    Write-Host "Kullanıcı bulunamadı: $samAccountName"
+    exit
+}
+
+Write-Host "Kullanıcı Bilgileri: $($user.FullName) ($samAccountName)"
+Write-Host "-----------------------------------"
+
+# Kullanıcının üye olduğu grupları al
+$groups = Get-LocalGroup | Where-Object { 
+    (Get-LocalGroupMember -Group $_.Name -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq $samAccountName })
+}
+
+# Eğer kullanıcı hiçbir gruba üye değilse bilgilendir
+if ($groups.Count -eq 0) {
+    Write-Host "Bu kullanıcı hiçbir yerel gruba üye değil."
+} else {
+    Write-Host "Kullanıcının Üye Olduğu Gruplar:"
+    foreach ($group in $groups) {
+        Write-Host "- $($group.Name)"
+    }
+}
+
+Write-Host "-----------------------------------"
+
+# Klasör izinlerini kontrol etmek için örnek bir dizin
+$directoryPath = Read-Host "Yetkilerini görmek istediğiniz dizin yolunu girin (örnek: C:\TestFolder)"
+
+# Yetki bilgilerini almak için icacls kullan
+Write-Host "`n$directoryPath dizini için yetkiler:"
+icacls $directoryPath | Select-String $samAccountName
