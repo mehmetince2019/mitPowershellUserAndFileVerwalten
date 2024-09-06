@@ -1,38 +1,47 @@
-# Kullanıcıdan SAM adını al
-$samAccountName = Read-Host "Kullanıcının SAM adını girin"
+# Kullanıcıdan ilk harfi veya harfleri al
+$prefix = Read-Host "İlk harfi veya harfleri girin"
 
-# Kullanıcıyı getir
-$user = Get-LocalUser -Name $samAccountName -ErrorAction SilentlyContinue
+# Yerel kullanıcıları al
+$users = Get-LocalUser
 
-# Kullanıcı bulunamazsa hata ver
-if (-not $user) {
-    Write-Host "Kullanıcı bulunamadı: $samAccountName"
-    exit
-}
+# Girdiyle başlayan kullanıcıları filtrele
+$filteredUsers = $users | Where-Object { $_.Name -like "$prefix*" }
 
-Write-Host "Kullanıcı Bilgileri: $($user.FullName) ($samAccountName)"
-Write-Host "-----------------------------------"
-
-# Kullanıcının üye olduğu grupları al
-$groups = Get-LocalGroup | Where-Object { 
-    (Get-LocalGroupMember -Group $_.Name -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq $samAccountName })
-}
-
-# Eğer kullanıcı hiçbir gruba üye değilse bilgilendir
-if ($groups.Count -eq 0) {
-    Write-Host "Bu kullanıcı hiçbir yerel gruba üye değil."
-} else {
-    Write-Host "Kullanıcının Üye Olduğu Gruplar:"
-    foreach ($group in $groups) {
-        Write-Host "- $($group.Name)"
+# Kullanıcıları listele
+if ($filteredUsers.Count -gt 0) {
+    Write-Host "İlgili kullanıcılar:"
+    foreach ($user in $filteredUsers) {
+        $username = $user.Name
+        $fullName = $user.FullName
+        Write-Host "$username - $fullName"
     }
+
+    # Kullanıcıyı seç
+    $selectedUser = Read-Host "Yetkilerini görmek istediğiniz kullanıcının adını seçin"
+
+    # OneDrive klasör yolları
+    $oneDriveBasePath = "C:\Users\$selectedUser\OneDrive"
+    $buchhaltungPath = Join-Path $oneDriveBasePath "Buchhaltung"
+    $verwaltungPath = Join-Path $oneDriveBasePath "Verwaltung"
+
+    # Eğer klasörler yoksa bilgilendir
+    if (-not (Test-Path $buchhaltungPath)) {
+        Write-Host "Buchhaltung klasörü bulunamadı: $buchhaltungPath"
+        exit
+    }
+
+    if (-not (Test-Path $verwaltungPath)) {
+        Write-Host "Verwaltung klasörü bulunamadı: $verwaltungPath"
+        exit
+    }
+
+    # Kullanıcının Buchhaltung ve Verwaltung klasörlerindeki yetkilerini göster
+    Write-Host "`n$selectedUser kullanıcısının Buchhaltung klasöründeki yetkileri:"
+    icacls $buchhaltungPath | Select-String $selectedUser
+
+    Write-Host "`n$selectedUser kullanıcısının Verwaltung klasöründeki yetkileri:"
+    icacls $verwaltungPath | Select-String $selectedUser
+
+} else {
+    Write-Host "Belirtilen harfle başlayan kullanıcı bulunamadı."
 }
-
-Write-Host "-----------------------------------"
-
-# Klasör izinlerini kontrol etmek için örnek bir dizin
-$directoryPath = Read-Host "Yetkilerini görmek istediğiniz dizin yolunu girin (örnek: C:\TestFolder)"
-
-# Yetki bilgilerini almak için icacls kullan
-Write-Host "`n$directoryPath dizini için yetkiler:"
-icacls $directoryPath | Select-String $samAccountName
