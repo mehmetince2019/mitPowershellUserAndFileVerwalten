@@ -2,3 +2,9 @@ New-Item -ItemType Directory -Path "C:\Datei\Buchhaltung"
 New-Item -ItemType Directory -Path "C:\Datei\Verwaltung"
 
 Set-Location "C:\Datei\Buchhaltung"
+
+
+Set-ExecutionPolicy Unrestricted
+
+https://git-scm.com/download/win
+git clone https://github.com/mehmetince2019/mitPowershellUserAndFileVerwalten/
