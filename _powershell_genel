@@ -9,7 +9,7 @@ Set-ExecutionPolicy Unrestricted
 https://git-scm.com/download/win
 git clone https://github.com/mehmetince2019/mitPowershellUserAndFileVerwalten/
 
-
+type powershell_genel
 Get-Content .\_powershell_genel
 
 
